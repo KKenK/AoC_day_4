@@ -1,14 +1,14 @@
 import input_parser
 import copy
 from collections import namedtuple
+from char_grid_class import CharGrid
 
 Coordinate_Transformation = namedtuple("Coordinates_Transformation", ["x","y"])
 
-class WordSearch():
+class WordSearch(CharGrid):
     
     def __init__(self, word_grid):
-        self.grid = word_grid
-        self._grid_with_borders = []
+        super().__init__(word_grid)
 
     def count_word_instance(self, target_word):
 
@@ -25,19 +25,6 @@ class WordSearch():
                 instance_counter += self._scan_adjacent_positions_for_word_instances(target_word, y, x)
   
         return instance_counter
-    
-    def _add_border(self, target_word_length):
-
-        grid_copy = copy.copy(self.grid)
-
-        grid_with_borders = ["." * (target_word_length - 1) + x + "." * (target_word_length - 1) for x in grid_copy]
-
-        line_length = len(grid_with_borders[0])
-        
-        for i in range(target_word_length - 1):
-            grid_with_borders = ["." * line_length] + grid_with_borders + ["." * line_length]
-
-        return grid_with_borders
     
     def _scan_adjacent_positions_for_word_instances(self, target_word, starting_y, starting_x):
         
