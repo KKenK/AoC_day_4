@@ -12,7 +12,7 @@ class PatternSearch(CharGrid):
 
     def count_pattern_instances(self, pattern_checker):
 
-        target_pattern_length = 3
+        target_pattern_length = 5
 
         self._grid_with_borders = self._add_border(target_pattern_length)
 
@@ -45,18 +45,26 @@ class PatternChecker():
             
             position = self.pattern_relative_coordinates[position]
             
+            relative_x_copy = copy.copy(position.relative_x)
+            
             if position.relative_x < 0 and position.relative_y < 0:
-                position.relative_x *= -1
+                position.relative_x = position.relative_y * -1
+                position.relative_y = relative_x_copy 
 
             elif position.relative_x > 0 and position.relative_y < 0:
-                position.relative_y *= -1
+                position.relative_x = position.relative_y * -1
+                position.relative_y = relative_x_copy 
             
             elif position.relative_x > 0 and position.relative_y > 0:
-                position.relative_x *= -1
-            
-            elif position.relative_x < 0 and position.relative_y > 0:
-                position.relative_y *= -1
+                position.relative_x = position.relative_y * -1
+                position.relative_y = relative_x_copy 
 
+            elif position.relative_x < 0 and position.relative_y > 0:
+                position.relative_x = position.relative_y * -1
+                position.relative_y = relative_x_copy 
+
+        self.print_pattern_coordinates()
+        
     def _generate_pattern_permutations_strings(self):
         
         pattern_permutation_strings = []
