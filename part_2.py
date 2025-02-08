@@ -10,18 +10,16 @@ class PatternSearch(CharGrid):
     def __init__(self, word_grid):
         super().__init__(word_grid)
 
-    def count_pattern_instances(self, pattern_checker):
+    def count_pattern_instances(self, pattern_checker, pattern_perimeter):
 
-        target_pattern_length = 5
-
-        self._grid_with_borders = self._add_border(target_pattern_length)
+        self._grid_with_borders = self._add_border(pattern_perimeter)
 
         line_length = len(self._grid_with_borders[0])
 
         instance_counter = 0
 
-        for y in range(target_pattern_length - 1 , len(self._grid_with_borders) - (target_pattern_length - 1)):
-            for x in range(target_pattern_length - 1 , line_length - (target_pattern_length - 1)):       
+        for y in range(pattern_perimeter - 1 , len(self._grid_with_borders) - (pattern_perimeter - 1)):
+            for x in range(pattern_perimeter - 1 , line_length - (pattern_perimeter - 1)):       
                 instance_counter += pattern_checker.check_for_pattern(self._grid_with_borders, (x , y))
   
         return instance_counter
@@ -96,6 +94,33 @@ class PatternChecker():
         
         print("")
 
+def check_longest_dimension_of_pattern_perimeter(pattern_coordinates):
+
+    smallest_x = 0
+    largest_x = 0
+    smallest_y = 0
+    largest_y = 0
+
+    for coordinate in pattern_coordinates:
+        
+        if smallest_x > coordinate.relative_x:
+            smallest_x = coordinate.relative_x
+        elif largest_x < coordinate.relative_x:
+            largest_x = coordinate.relative_x
+        
+        if smallest_y > coordinate.relative_y:
+            smallest_y = coordinate.relative_y
+        elif largest_y < coordinate.relative_y:
+            largest_y = coordinate.relative_y
+
+    x_difference = largest_x - smallest_x
+    y_difference =  largest_y - smallest_y
+
+    if x_difference > y_difference:
+        return x_difference
+    else:
+        return y_difference
+
 if __name__ == "__main__":
 
     input_parser = input_parser.InputParser(r"C:\Users\kylek\Documents\code\Advent_of_code\2024\Day_4\input.txt")
@@ -110,4 +135,4 @@ if __name__ == "__main__":
     
     x_mas_pattern = PatternChecker(x_mas_pattern_coordinates)
 
-    print(pattern_search.count_pattern_instances(x_mas_pattern))
+    print(pattern_search.count_pattern_instances(x_mas_pattern, check_longest_dimension_of_pattern_perimeter(x_mas_pattern_coordinates)))
