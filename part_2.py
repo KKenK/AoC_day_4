@@ -10,7 +10,7 @@ class PatternSearch(CharGrid):
     def __init__(self, word_grid):
         super().__init__(word_grid)
 
-    def count_pattern_instances(self, pattern_checker, pattern_perimeter):
+    def count_pattern_instances(self, pattern_perimeter, pattern_checker_function):
 
         self._grid_with_borders = self._add_border(pattern_perimeter)
 
@@ -20,7 +20,7 @@ class PatternSearch(CharGrid):
 
         for y in range(pattern_perimeter - 1 , len(self._grid_with_borders) - (pattern_perimeter - 1)):
             for x in range(pattern_perimeter - 1 , line_length - (pattern_perimeter - 1)):       
-                instance_counter += pattern_checker.check_for_pattern(self._grid_with_borders, (x , y))
+                instance_counter += pattern_checker_function(self._grid_with_borders, (x , y))
   
         return instance_counter
 
@@ -42,26 +42,8 @@ class PatternChecker():
         for position in range(len(self.pattern_relative_coordinates)):
             
             position = self.pattern_relative_coordinates[position]
-            
-            relative_x_copy = copy.copy(position.relative_x)
-            
-            if position.relative_x < 0 and position.relative_y < 0:
-                position.relative_x = position.relative_y * -1
-                position.relative_y = relative_x_copy 
-
-            elif position.relative_x > 0 and position.relative_y < 0:
-                position.relative_x = position.relative_y * -1
-                position.relative_y = relative_x_copy 
-            
-            elif position.relative_x > 0 and position.relative_y > 0:
-                position.relative_x = position.relative_y * -1
-                position.relative_y = relative_x_copy 
-
-            elif position.relative_x < 0 and position.relative_y > 0:
-                position.relative_x = position.relative_y * -1
-                position.relative_y = relative_x_copy 
-
-        self.print_pattern_coordinates()
+                       
+            position.relative_x, position.relative_y= position.relative_y * -1, position.relative_x
         
     def _generate_pattern_permutations_strings(self):
         
@@ -94,38 +76,45 @@ class PatternChecker():
         
         print("")
 
-def check_longest_dimension_of_pattern_perimeter(pattern_coordinates):
-
-    smallest_x = 0
-    largest_x = 0
-    smallest_y = 0
-    largest_y = 0
-
-    for coordinate in pattern_coordinates:
+class PatternDimensionAnalyser():
+    def __init__(self, pattern_coordinates):
+        self._longest_pattern_dimension = self._check_longest_dimension_of_pattern_perimeter(pattern_coordinates)
         
-        if smallest_x > coordinate.relative_x:
-            smallest_x = coordinate.relative_x
-        elif largest_x < coordinate.relative_x:
-            largest_x = coordinate.relative_x
-        
-        if smallest_y > coordinate.relative_y:
-            smallest_y = coordinate.relative_y
-        elif largest_y < coordinate.relative_y:
-            largest_y = coordinate.relative_y
+    def _check_longest_dimension_of_pattern_perimeter(self, pattern_coordinates):
 
-    x_difference = largest_x - smallest_x
-    y_difference =  largest_y - smallest_y
+        smallest_x = 0
+        largest_x = 0
+        smallest_y = 0
+        largest_y = 0
 
-    if x_difference > y_difference:
-        return x_difference
-    else:
-        return y_difference
+        for coordinate in pattern_coordinates:
+            
+            if smallest_x > coordinate.relative_x:
+                smallest_x = coordinate.relative_x
+            elif largest_x < coordinate.relative_x:
+                largest_x = coordinate.relative_x
+            
+            if smallest_y > coordinate.relative_y:
+                smallest_y = coordinate.relative_y
+            elif largest_y < coordinate.relative_y:
+                largest_y = coordinate.relative_y
+
+        x_difference = largest_x - smallest_x
+        y_difference =  largest_y - smallest_y
+
+        if x_difference > y_difference:
+            return x_difference
+        else:
+            return y_difference
+
+    def get_longest_dimension_of_pattern_perimeter(self):
+        return self._longest_pattern_dimension
 
 if __name__ == "__main__":
 
     input_parser = input_parser.InputParser(r"C:\Users\kylek\Documents\code\Advent_of_code\2024\Day_4\input.txt")
 
-    pattern_search = PatternSearch(input_parser.parsed_input)
+    x_mas_pattern_search = PatternSearch(input_parser.parsed_input)
 
     x_mas_pattern_coordinates =  [Position("M", -1, -1),
                                   Position("S", 1, -1),
@@ -133,6 +122,8 @@ if __name__ == "__main__":
                                   Position("M", -1, 1),
                                   Position("S", 1, 1)]
     
-    x_mas_pattern = PatternChecker(x_mas_pattern_coordinates)
+    x_mas_pattern_checker = PatternChecker(x_mas_pattern_coordinates)
 
-    print(pattern_search.count_pattern_instances(x_mas_pattern, check_longest_dimension_of_pattern_perimeter(x_mas_pattern_coordinates)))
+    x_mas_pattern_analyser = PatternDimensionAnalyser(x_mas_pattern_coordinates)
+
+    print(x_mas_pattern_search.count_pattern_instances(x_mas_pattern_analyser.get_longest_dimension_of_pattern_perimeter(), x_mas_pattern_checker.check_for_pattern))
